@@ -32,7 +32,7 @@ object SmsUtils {
 
     // Layer 1: look for a known bank keyword in the sender address
     fun isBankSender(sender: String): Boolean {
-        val banks = listOf("HDFC", "SBI", "ICICI", "AXIS")
+        val banks = listOf("HDFC", "SBI", "ICICI", "AXIS", "KOTAK", "INDUS","YESBNK", "IDFCFB", "BOIIND", "PNBSMS", "CANBNK","PAYTM", "PHONEPE", "GPAY")
         return banks.any { sender.contains(it, ignoreCase = true) }
     }
 

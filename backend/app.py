@@ -12,6 +12,7 @@ from google.auth.transport import requests as google_requests
 from flask_cors import CORS
 import os
 import requests as http_requests
+import yfinance as yf
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY
@@ -145,6 +146,55 @@ def ai_insights():
     prompt = payload.get('prompt')
     if not prompt:
         return jsonify({'error': 'Missing prompt'}), 400
+    # Get logged - in user
+    user_id = get_jwt_identity()
+    
+    docs = list(collection.find({'user_id': user_id}).limit(50))
+    transactions = []
+
+    for d in docs[:50]:
+        try:
+            amt = cipher.decrypt(d['encrypted_amount'].encode()).decode()
+            merch = cipher.decrypt(d['encrypted_merchant'].encode()).decode()
+            transactions.append({
+                "amount": float(amt),
+                "merchant": merch,
+                "type": d.get("type"),
+                "date": d.get("date")
+            })
+        except Exception:
+            continue
+
+    # get user's financial profile
+    profile = get_user_financial_profile(user_id)
+
+    # Build AI context using financial data
+    
+    context_prompt = f"""
+    You are a financial advisor AI.
+
+    User financial profile:
+    Monthly income: {profile['monthly_income']}
+    Monthly expenses: {profile['monthly_expenses']}
+    Monthly savings: {profile['monthly_savings']}
+    Affordable EMI: {profile['affordable_monthly_emi']}
+    Recommended maximum loan: {profile['recommended_max_loan']}
+
+    Recent transactions:
+    {transactions}
+
+    User question:
+    {prompt}
+
+    Give:
+    1. Spending insights
+    2. Saving recommendations
+    3. Budget improvement suggestions
+    4. Loan advice based on affordability
+    """
+    
+# AI insights endpoint - proxies to Anthropic/Gemini based on configuration
+
     ai_key = os.getenv('AI_API_KEY')
     if not ai_key:
         return jsonify({'error': 'AI_API_KEY not configured'}), 500
@@ -162,7 +212,7 @@ def ai_insights():
                     'Authorization': f'Bearer {ai_key}'
                 },
                 json={
-                    'prompt': prompt,
+                    'prompt': context_prompt,
                     'maxOutputTokens': 800
                 },
                 timeout=20
@@ -203,6 +253,8 @@ def ai_insights():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     return jsonify({'text': text}), 200
+
+
 
 
 # ═══════════════════════════════════════════════════════════
@@ -289,9 +341,39 @@ def get_user_financial_profile(user_id):
         'months_analyzed': num_months
     }
 
+# ─────────────────────────────────────────────
+# STOCK MARKET SIGNAL
+# ─────────────────────────────────────────────
+def get_stock_signal(symbol="TCS.NS"):
+    stock = yf.Ticker(symbol)
+
+    data = stock.history(period="1mo")
+
+    current_price = data["Close"].iloc[-1]
+    avg_price = data["Close"].mean()
+
+    suggestion = "Bullish" if current_price > avg_price else "Bearish"
+
+    return {
+        "symbol": symbol,
+        "current_price": float(current_price),
+        "average_price": float(avg_price),
+        "signal": suggestion
+    }
+
 
 @app.route('/loan-suggestions', methods=['GET'])
 @jwt_required()
+# ─────────────────────────────────────────────
+# STOCK SIGNAL ENDPOINT
+# ─────────────────────────────────────────────
+@app.route('/stock-signal', methods=['GET'])
+@jwt_required()
+def stock_signal():
+    symbol = request.args.get("symbol", "TCS.NS")
+    result = get_stock_signal(symbol)
+    return jsonify(result), 200
+
 def loan_suggestions():
     """
     Provide loan/EMI suggestions based on user's financial profile.
