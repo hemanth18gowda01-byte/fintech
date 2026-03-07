@@ -1,9 +1,13 @@
 Flask==2.2.5
 flask-jwt-extended==4.6.0
+<<<<<<< HEAD
 pymongo==4.5.1
+=======
+pymongo==4.6.0
+>>>>>>> dc5ba51c3625b0be0faf5cb0becd75dcef6e52d5
 cryptography==3.4.8
 python-dotenv==1.0.0
-flask-cors==3.0.11
+flask-cors==4.0.0
 requests==2.30.0
 gunicorn==21.2.0
 # for verifying Google ID tokens
