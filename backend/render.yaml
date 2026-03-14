@@ -2,8 +2,17 @@ services:
   - type: web
     name: fintrack-backend
     env: python
+    region: singapore  # or closest to you
+    plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 4 app:app
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 app:app
+    healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: MONGO_URI
+        sync: false  # Set in dashboard
+      - key: JWT_SECRET_KEY
+        sync: false  # Set in dashboard
+      - key: FERNET_KEY
+        sync: false  # Set in dashboard
