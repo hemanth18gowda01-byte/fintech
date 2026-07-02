@@ -38,6 +38,17 @@
       --glass-border: rgba(255,255,255,0.09);
       --glass-hover: rgba(255,255,255,0.08);
       --sep: rgba(255,255,255,0.07);
+
+      /* Premium glass + gradient tokens */
+      --gold: #e8c25f;
+      --gold2: #c99a3e;
+      --emerald-grad: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+      --gold-grad: linear-gradient(135deg, #f2d38a 0%, #c99a3e 100%);
+      --glass-premium: linear-gradient(155deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.025) 55%, rgba(255,255,255,0.045) 100%);
+      --glass-sheen: linear-gradient(120deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 40%);
+      --glass-border-premium: rgba(255,255,255,0.14);
+      --shadow-lift: 0 20px 44px -18px rgba(0,0,0,0.55), 0 2px 0 rgba(255,255,255,0.04) inset;
+      --shadow-lift-hover: 0 26px 56px -18px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.06) inset;
     }
 
     body {
@@ -50,6 +61,20 @@
       position: relative;
     }
 
+    /* Ambient premium gradient wash behind entire app */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(720px 520px at 8% -6%, rgba(139,92,246,0.16), transparent 60%),
+        radial-gradient(680px 520px at 96% 8%, rgba(52,211,153,0.11), transparent 60%),
+        radial-gradient(900px 700px at 50% 108%, rgba(232,194,95,0.07), transparent 60%),
+        linear-gradient(180deg, #070710 0%, #0a0a16 50%, #070710 100%);
+    }
+
     /* SCROLLBAR */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
@@ -60,8 +85,11 @@
     #sidebar {
       width: 220px;
       min-height: 100vh;
-      background: rgba(5,5,14,0.88);
-      border-right: 1px solid rgba(255,255,255,0.06);
+      background:
+        linear-gradient(180deg, rgba(139,92,246,0.05), transparent 22%),
+        rgba(5,5,14,0.88);
+      border-right: 1px solid rgba(255,255,255,0.07);
+      box-shadow: 1px 0 0 rgba(255,255,255,0.02), 12px 0 40px -20px rgba(0,0,0,0.6);
       display: flex;
       flex-direction: column;
       position: fixed;
@@ -1133,9 +1161,11 @@
       border-radius: 50px;
       cursor: pointer;
       margin-top: 4px;
-      transition: all 0.15s;
+      transition: all 0.2s cubic-bezier(0.25,0.46,0.45,0.94);
+      box-shadow: 0 8px 20px -6px rgba(245,158,11,0.45);
     }
-    .calc-btn:hover { background: var(--amber2); }
+    .calc-btn:hover { background: var(--amber2); transform: translateY(-1px); box-shadow: 0 12px 26px -6px rgba(245,158,11,0.6); }
+    .calc-btn:active { transform: translateY(0); }
     .emi-result {
       background: rgba(255,255,255,0.04);
       border: 1px solid var(--glass-border);
@@ -1640,6 +1670,109 @@
     }
     .loan-tenure-select:focus { border-color: var(--amber); }
 
+    /* ===== LENDER COMPARISON ===== */
+    .lender-compare {
+      margin-top: 18px;
+      display: none;
+    }
+    .lender-compare.show { display: block; }
+    .lender-compare-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .lender-compare-title {
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--sans);
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lender-compare-title .lc-icon { color: var(--gold); }
+    .lender-compare-sub {
+      font-size: 9.5px;
+      color: var(--text3);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .lender-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .lender-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid var(--glass-border);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .lender-row:hover { border-color: rgba(255,255,255,0.16); transform: translateX(2px); }
+    .lender-row.lender-best {
+      border-color: rgba(52,211,153,0.4);
+      background: linear-gradient(120deg, rgba(52,211,153,0.09), rgba(52,211,153,0.02));
+      box-shadow: 0 0 0 1px rgba(52,211,153,0.12), 0 8px 20px -10px rgba(52,211,153,0.35);
+    }
+    .lender-icon {
+      width: 30px; height: 30px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--glass-border);
+      flex-shrink: 0;
+    }
+    .lender-best .lender-icon { background: rgba(52,211,153,0.14); border-color: rgba(52,211,153,0.3); }
+    .lender-name-wrap { min-width: 0; }
+    .lender-name { font-size: 11.5px; font-weight: 600; font-family: var(--sans); display: flex; align-items: center; gap: 6px; }
+    .lender-rate { font-size: 9.5px; color: var(--text3); margin-top: 1px; }
+    .lender-best-badge {
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(52,211,153,0.18);
+      color: var(--cyan);
+      border: 1px solid rgba(52,211,153,0.3);
+    }
+    .lender-emi { text-align: right; }
+    .lender-emi-val { font-size: 13px; font-weight: 700; font-family: var(--mono); }
+    .lender-emi-label { font-size: 8px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+    .lender-total { text-align: right; min-width: 78px; }
+    .lender-total-val { font-size: 11px; font-weight: 600; font-family: var(--mono); color: var(--text2); }
+    .lender-total-label { font-size: 8px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+    .lender-savings-note {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: linear-gradient(120deg, rgba(232,194,95,0.1), rgba(232,194,95,0.02));
+      border: 1px solid rgba(232,194,95,0.25);
+      font-size: 10.5px;
+      color: var(--text2);
+      line-height: 1.6;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .lender-savings-note .lc-icon { color: var(--gold); font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+    .lender-savings-note strong { color: var(--gold); font-weight: 700; }
+    .lender-disclaimer {
+      font-size: 8.5px;
+      color: var(--text3);
+      margin-top: 10px;
+      line-height: 1.5;
+      opacity: 0.75;
+    }
+
     /* GLASSMORPHISM ENTRY ANIMATIONS */
     @keyframes glassIn {
       from { opacity: 0; transform: translateY(12px); }
@@ -1648,6 +1781,38 @@
     .stat-card, .invest-card, .stock-card, .chart-section, .dash-card-large,
     .analytics-card, .loan-card, .mkt-stat, .ai-pick-card, .ins-card {
       animation: glassIn 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    }
+
+    /* ===== PREMIUM GLASSMORPHISM REFINEMENT ===== */
+    /* Applies a richer glass treatment site-wide: layered gradient fill,
+       hairline premium border, soft directional sheen and a lifted shadow
+       that deepens on hover — without altering existing layout/sizing. */
+    .stat-card, .invest-card, .stock-card, .chart-section, .dash-card-large,
+    .analytics-card, .loan-card, .mkt-stat, .ai-pick-card, .ins-card,
+    .lender-card, .lender-row {
+      position: relative;
+      background-image: var(--glass-premium);
+      border-color: var(--glass-border-premium);
+      box-shadow: var(--shadow-lift);
+      transition: transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.25s ease, border-color 0.25s ease;
+      isolation: isolate;
+      overflow: hidden;
+    }
+    .stat-card::before, .invest-card::before, .stock-card::before, .dash-card-large::before,
+    .analytics-card::before, .loan-card::before, .mkt-stat::before, .ai-pick-card::before, .ins-card::before,
+    .lender-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--glass-sheen);
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .stat-card:hover, .invest-card:hover, .stock-card:hover, .dash-card-large:hover,
+    .analytics-card:hover, .loan-card:hover, .mkt-stat:hover, .ai-pick-card:hover, .ins-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lift-hover);
     }
     
     /* PURPLE GLOW ACCENT */
@@ -2108,6 +2273,15 @@
           <div class="emi-result-row"><span class="emi-result-label">Interest %</span><span class="emi-result-val" id="home-pct">—</span></div>
           <div class="section-header" style="margin-top:16px;">Amortisation Schedule</div>
           <div class="amort-table-wrap" id="home-amort"></div>
+          <div class="lender-compare" id="home-lender-compare">
+            <div class="lender-compare-head">
+              <div class="lender-compare-title"><span class="lc-icon">◆</span> Compare Home Loan Lenders</div>
+            </div>
+            <div class="lender-compare-sub">EMI recalculated per lender using your loan amount &amp; tenure above.</div>
+            <div class="lender-list" id="home-lender-list"></div>
+            <div class="lender-savings-note" id="home-lender-savings"></div>
+            <div class="lender-disclaimer">⚠ Rates shown are indicative starting rates for illustration and change with lender policy, loan-to-value, tenure and your credit profile. Confirm current rates directly with each lender before applying.</div>
+          </div>
         </div>
       </div>
       <div class="loan-card">
@@ -2133,6 +2307,15 @@
           <div class="emi-result-row"><span class="emi-result-label">Interest %</span><span class="emi-result-val" id="car-pct">—</span></div>
           <div class="section-header" style="margin-top:16px;">Amortisation Schedule</div>
           <div class="amort-table-wrap" id="car-amort"></div>
+          <div class="lender-compare" id="car-lender-compare">
+            <div class="lender-compare-head">
+              <div class="lender-compare-title"><span class="lc-icon">◆</span> Compare Car Loan Lenders</div>
+            </div>
+            <div class="lender-compare-sub">EMI recalculated per lender using your loan amount &amp; tenure above.</div>
+            <div class="lender-list" id="car-lender-list"></div>
+            <div class="lender-savings-note" id="car-lender-savings"></div>
+            <div class="lender-disclaimer">⚠ Rates shown are indicative starting rates for illustration and change with lender policy, vehicle type, tenure and your credit profile. Confirm current rates directly with each lender before applying.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -2167,6 +2350,15 @@
           <div class="emi-result-row"><span class="emi-result-label">Interest %</span><span class="emi-result-val" id="main-pct">—</span></div>
           <div class="section-header" style="margin-top:16px;">Full Amortisation Schedule</div>
           <div class="amort-table-wrap" id="main-amort"></div>
+          <div class="lender-compare" id="main-lender-compare">
+            <div class="lender-compare-head">
+              <div class="lender-compare-title"><span class="lc-icon">◆</span> Compare Personal Loan Lenders</div>
+            </div>
+            <div class="lender-compare-sub">EMI recalculated per lender using your principal &amp; duration above.</div>
+            <div class="lender-list" id="main-lender-list"></div>
+            <div class="lender-savings-note" id="main-lender-savings"></div>
+            <div class="lender-disclaimer">⚠ Rates shown are indicative starting rates for illustration and change with lender policy, tenure and your credit profile. Confirm current rates directly with each lender before applying.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -3090,6 +3282,7 @@ function calcEMI(type) {
   document.getElementById(type+'-result').classList.add('show');
   const amortEl = document.getElementById(type+'-amort');
   if (amortEl) amortEl.innerHTML = buildAmortTable(p, rVal, n);
+  renderLenderComparison(type, p, n);
 }
 
 function calcEMIMain() {
@@ -3107,6 +3300,88 @@ function calcEMIMain() {
   document.getElementById('main-emi-result').classList.add('show');
   const amortEl = document.getElementById('main-amort');
   if (amortEl) amortEl.innerHTML = buildAmortTable(p, rVal, n);
+  renderLenderComparison('main', p, n);
+}
+
+// ============ LENDER COMPARISON ============
+// Indicative starting interest rates (annual %) by loan category, keyed to the
+// three calculators: 'home' -> Home Loan, 'car' -> Car Loan, 'main' -> EMI Calc
+// (treated as a general/personal loan for comparison purposes).
+const lenderRatesDB = {
+  home: [
+    { name: 'SBI',              icon: '🏦', rate: 8.35 },
+    { name: 'Bank of Baroda',   icon: '🏛️', rate: 8.40 },
+    { name: 'HDFC Bank',        icon: '🏦', rate: 8.45 },
+    { name: 'LIC Housing Fin.', icon: '📄', rate: 8.50 },
+    { name: 'ICICI Bank',       icon: '🏦', rate: 8.55 },
+    { name: 'Axis Bank',        icon: '🏦', rate: 8.60 },
+  ],
+  car: [
+    { name: 'SBI',              icon: '🏦', rate: 9.10 },
+    { name: 'ICICI Bank',       icon: '🏦', rate: 9.35 },
+    { name: 'HDFC Bank',        icon: '🏦', rate: 9.40 },
+    { name: 'Axis Bank',        icon: '🏦', rate: 9.50 },
+    { name: 'Kotak Mahindra',   icon: '🏦', rate: 9.60 },
+    { name: 'Tata Capital',     icon: '📄', rate: 9.75 },
+  ],
+  main: [
+    { name: 'IDFC FIRST Bank',  icon: '🏦', rate: 10.49 },
+    { name: 'HDFC Bank',        icon: '🏦', rate: 10.75 },
+    { name: 'ICICI Bank',       icon: '🏦', rate: 10.85 },
+    { name: 'SBI',              icon: '🏦', rate: 10.90 },
+    { name: 'Bajaj Finserv',    icon: '📄', rate: 11.00 },
+    { name: 'Axis Bank',        icon: '🏦', rate: 11.25 },
+  ],
+};
+
+const lenderLoanLabel = { home: 'Home Loan', car: 'Car Loan', main: 'Personal Loan' };
+
+function computeEMIQuote(p, rVal, n) {
+  const r = rVal / 100 / 12;
+  const emi = r === 0 ? p / n : p * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+  const total = emi * n;
+  return { emi, total, interest: total - p };
+}
+
+function renderLenderComparison(type, p, n) {
+  const listEl = document.getElementById(type + '-lender-list');
+  const wrapEl = document.getElementById(type + '-lender-compare');
+  const noteEl = document.getElementById(type + '-lender-savings');
+  if (!listEl || !wrapEl || !noteEl) return;
+  if (!p || !n || p <= 0 || n <= 0) return;
+
+  const lenders = lenderRatesDB[type] || lenderRatesDB.main;
+  const quoted = lenders
+    .map(l => ({ ...l, ...computeEMIQuote(p, l.rate, n) }))
+    .sort((a, b) => a.total - b.total);
+
+  const best = quoted[0];
+  const worst = quoted[quoted.length - 1];
+
+  listEl.innerHTML = quoted.map((l, i) => `
+    <div class="lender-row ${i === 0 ? 'lender-best' : ''}">
+      <div class="lender-icon">${l.icon}</div>
+      <div class="lender-name-wrap">
+        <div class="lender-name">${l.name} ${i === 0 ? '<span class="lender-best-badge">Best Rate</span>' : ''}</div>
+        <div class="lender-rate">${l.rate.toFixed(2)}% p.a. · ${lenderLoanLabel[type] || 'Loan'}</div>
+      </div>
+      <div class="lender-emi">
+        <div class="lender-emi-val">${fmtINR(l.emi)}</div>
+        <div class="lender-emi-label">per month</div>
+      </div>
+      <div class="lender-total">
+        <div class="lender-total-val">${fmtINR(l.interest)}</div>
+        <div class="lender-total-label">total interest</div>
+      </div>
+    </div>`).join('');
+
+  const savings = worst.total - best.total;
+  noteEl.innerHTML = `
+    <span class="lc-icon">◆</span>
+    <div>Choosing <strong>${best.name}</strong> at ${best.rate.toFixed(2)}% instead of the highest-rate lender here (${worst.name}, ${worst.rate.toFixed(2)}%)
+    could save you roughly <strong>${fmtINR(savings)}</strong> in total interest over the full tenure — with the same loan amount and duration.</div>`;
+
+  wrapEl.classList.add('show');
 }
 
 // ============ FUTURE PLANNING ============
