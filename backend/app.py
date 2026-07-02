@@ -168,6 +168,51 @@ def stock_suggestions():
     except Exception as e:
         return jsonify({"error": f"Stock service error: {str(e)}"}), 502
 
+@app.route("/stock-quote", methods=["GET"])
+@jwt_required()
+def stock_quote():
+    symbol = request.args.get("symbol")
+
+    if not symbol:
+        return jsonify({"error": "symbol is required"}), 400
+
+    try:
+        data = get_stock_quote(symbol)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": f"Stock service error: {str(e)}"}), 502
+
+@app.route("/stock-history", methods=["GET"])
+@jwt_required()
+@cache.cached(timeout=3600, query_string=True)
+def stock_history():
+    symbol = request.args.get("symbol")
+    period = request.args.get("period", "1mo")
+
+    if not symbol:
+        return jsonify({"error": "symbol is required"}), 400
+
+    try:
+        data = get_stock_history(symbol, period)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": f"Stock service error: {str(e)}"}), 502
+
+@app.route("/stock-search", methods=["GET"])
+@jwt_required()
+@limiter.limit("20 per minute")
+def stock_search():
+    query = request.args.get("query")
+
+    if not query:
+        return jsonify({"error": "query is required"}), 400
+
+    try:
+        data = search_stocks(query)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": f"Stock service error: {str(e)}"}), 502
+
 @app.route("/loan-suggestions", methods=["POST"])
 @jwt_required()
 def loan_suggestions():
