@@ -9,7 +9,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_caching import Cache
 
-from services.stock_service import get_stock_suggestions
+from services.stock_service import get_stock_suggestions, get_stock_quote, get_stock_history, search_stocks
 from services.loan_service import get_loan_suggestions
 from services.insurance_service import get_insurance_plans
 from services.ai_service import generate_ai_insight
