@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import yfinance as yf
 
 # Default watchlist shown on the dashboard when no specific symbols are requested.
@@ -79,7 +81,7 @@ def get_stock_history(symbol, period="1mo", interval="1d"):
     candles = []
     for date, row in hist.iterrows():
         candles.append({
-            "date": date.isoformat(),
+            "date": datetime.fromisoformat(str(date)).isoformat(),
             "open": round(float(row["Open"]), 2),
             "high": round(float(row["High"]), 2),
             "low": round(float(row["Low"]), 2),

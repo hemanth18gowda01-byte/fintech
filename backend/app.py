@@ -9,14 +9,14 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_caching import Cache
 
+load_dotenv()
+
 from services.stock_service import get_stock_suggestions, get_stock_quote, get_stock_history, search_stocks
 from services.loan_service import get_loan_suggestions
 from services.insurance_service import get_insurance_plans
 from services.ai_service import generate_ai_insight
 from utils.encryption import encrypt_data, decrypt_data
 from utils.transaction_hash import generate_hash
-
-load_dotenv()
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "dev-secret-change-in-production")
@@ -35,9 +35,9 @@ try:
     db = client["finance_db"]
     transactions_collection = db["transactions"]
     users_collection = db["users"]
-    print("✓ MongoDB connected")
+    print("MongoDB connected")
 except Exception as e:
-    print(f"⚠️  MongoDB error: {e}")
+    print(f"MongoDB error: {e}")
     db = None
 
 @app.route("/health", methods=["GET"])
@@ -54,7 +54,7 @@ def login_google():
     if not google_user_id:
         return jsonify({"error": "invalid login"}), 400
     
-    if db:
+    if db is not None:
         try:
             existing_user = users_collection.find_one({"google_id": google_user_id})
             if not existing_user:
@@ -76,7 +76,7 @@ def sync_transactions():
         return jsonify({"error": "transactions must be an array"}), 400
     
     inserted = 0
-    if db:
+    if db is not None:
         for txn in transactions:
             try:
                 txn_hash = generate_hash(txn)
@@ -109,7 +109,7 @@ def get_transactions():
     user_id = get_jwt_identity()
     result = []
     
-    if db:
+    if db is not None:
         try:
             txns = list(transactions_collection.find({"user_id": user_id}))
             for t in txns:
@@ -135,7 +135,7 @@ def ai_insights():
     question = request.json.get("question", "Give me a financial health summary")
     parsed_transactions = []
     
-    if db:
+    if db is not None:
         try:
             txns = list(transactions_collection.find({"user_id": user_id}))
             for t in txns:
